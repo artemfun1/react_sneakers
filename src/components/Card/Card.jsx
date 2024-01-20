@@ -1,11 +1,19 @@
+import { useState } from 'react';
+import styles from './Card.module.scss';
 
-import styles from './Card.module.scss'
+export function Card({ title, price, imgUrl, onClickPlus, onClickFavorite }) {
+	const [isAdded, setIsAdded] = useState(false);
+
+	const handleClickPlus = () => {
+		setIsAdded(p => !p);
+		onClickPlus({title, price, imgUrl})
+	};
 
 
-export function Card({ title, price, imgUrl, onClick }) {
+
 	return (
 		<div className={styles.card}>
-			<div className={styles.favorite}>
+			<div onClick={onClickFavorite} className={styles.favorite}>
 				<img src='/img/HeartOne.svg' alt='HeartOne' />
 			</div>
 			<img width={133} height={112} src={imgUrl} alt='Sneakers' />
@@ -15,9 +23,13 @@ export function Card({ title, price, imgUrl, onClick }) {
 					<span>Цена:</span>
 					<b>{price} руб.</b>
 				</div>
-				<button className='button' onClick={() => onClick()}>
-					<img width={32} height={32} src='img/NotAddedCart.svg' alt='plus' />
-				</button>
+
+				<img
+					className={styles.plus}
+					onClick={handleClickPlus}
+					src={isAdded ? 'img/AddedCart.svg' : 'img/NotAddedCart.svg'}
+					alt='plus'
+				/>
 			</div>
 		</div>
 	);

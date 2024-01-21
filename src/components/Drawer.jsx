@@ -1,4 +1,4 @@
-export function Drawer({ onClose, item =[] }) {
+export function Drawer({ onClose, item = [],onRemoveCartItem }) {
 	return (
 		<div className='overlay'>
 			<div className='drawer'>
@@ -14,7 +14,10 @@ export function Drawer({ onClose, item =[] }) {
 
 				<div className='items'>
 					{item.map(obj => (
-						<div key={Math.random()} className='cartItem d-flex align-center mb-20'>
+						<div
+							key={obj.key}
+							className='cartItem d-flex align-center mb-20'
+						>
 							<div
 								style={{
 									backgroundImage: `url(${obj.imgUrl})`,
@@ -26,7 +29,7 @@ export function Drawer({ onClose, item =[] }) {
 								<p className='mb-5'>{obj.title}</p>
 								<b>{obj.price} руб.</b>
 							</div>
-							<img className='removeBtn' src='img/BtnCancel.svg' alt='' />
+							<img onClick={()=>onRemoveCartItem(obj.key)} className='removeBtn' src='img/BtnCancel.svg' alt='' />
 						</div>
 					))}
 				</div>

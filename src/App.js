@@ -3,31 +3,40 @@ import { React, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Drawer } from './components/Drawer';
 import { Header } from './components/Header';
+import { AppContext } from './context';
 import { Favorites } from './pages/Favorites';
 import { Home } from './pages/Home';
 
 function App() {
 	const [items, setItems] = useState([]);
-
 	const [cartItems, setCartItems] = useState([]);
-
 	const [isCartOpen, setIsCartOpen] = useState(false);
-
 	const [searchValue, setSearchValue] = useState('');
-
 	const [favorites, setFavorites] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		axios
-			.get('https://e52956ada346c69b.mokky.dev/items')
-			.then(res => setItems(res.data));
-		axios
-			.get('https://e52956ada346c69b.mokky.dev/cart')
-			.then(res => setCartItems(res.data));
+		async function fetchData() {
+			setIsLoading(true);
+			const cartRes = await axios.get(
+				'https://e52956ada346c69b.mokky.dev/cart'
+			);
 
-		axios
-			.get('https://e52956ada346c69b.mokky.dev/favorite')
-			.then(res => setFavorites(res.data));
+			const favoritesRes = await axios.get(
+				'https://e52956ada346c69b.mokky.dev/favorite'
+			);
+
+			const itemsRes = await axios.get(
+				'https://e52956ada346c69b.mokky.dev/items'
+			);
+
+			setIsLoading(false);
+			setCartItems(cartRes.data);
+			setFavorites(favoritesRes.data);
+			setItems(itemsRes.data);
+		}
+
+		fetchData();
 	}, []);
 
 	const onAddToCart = obj => {
@@ -53,7 +62,13 @@ function App() {
 		axios.delete(`https://e52956ada346c69b.mokky.dev/cart/${key}`);
 
 		setCartItems(prev => prev.filter(item => item.key !== key));
+
+		// setItems(p=>[...p])
+
+	
 	};
+
+
 
 	const onRemoveFavoriteItem = key => {
 		axios.delete(`https://e52956ada346c69b.mokky.dev/favorite/${key}`);
@@ -85,43 +100,46 @@ function App() {
 	};
 
 	return (
-		<div className='wrapper clear'>
-			{Boolean(isCartOpen) && (
-				<Drawer
-					item={cartItems}
-					onClose={() => setIsCartOpen(false)}
-					onRemoveCartItem={onRemoveCartItem}
-				/>
-			)}
+		<AppContext.Provider value={{ cartItems, favorites,setIsCartOpen}}>
+			<div className='wrapper clear'>
+				{Boolean(isCartOpen) && (
+					<Drawer
+					setCartItems={setCartItems}
+						onRemoveCartItem={onRemoveCartItem}
+					/>
+				)}
 
-			<Header onClickCart={() => setIsCartOpen(true)} />
+				<Header onClickCart={() => setIsCartOpen(true)} />
 
-			<Routes>
-				<Route
-					path='/favorites'
-					element={
-						<Favorites
-							arrItems={favorites}
-							onAddToCart={onAddToCart}
-							onRemoveFavoriteItem={onRemoveFavoriteItem}
-						/>
-					}
-				/>
-				<Route
-					path='/'
-					element={
-						<Home
-							searchValue={searchValue}
-							onChangeSearchInput={onChangeSearchInput}
-							items={items}
-							onAddToFavorites={onAddToFavorites}
-							onAddToCart={onAddToCart}
-							onRemoveFavoriteItem={onRemoveFavoriteItem}
-						/>
-					}
-				/>
-			</Routes>
-		</div>
+				<Routes>
+					<Route
+						path='/favorites'
+						element={
+							<Favorites
+								onAddToCart={onAddToCart}
+								onRemoveFavoriteItem={onRemoveFavoriteItem}
+							/>
+						}
+					/>
+					<Route
+						path='/'
+						element={
+							<Home
+								searchValue={searchValue}
+								onChangeSearchInput={onChangeSearchInput}
+								items={items}
+								onAddToFavorites={onAddToFavorites}
+								onAddToCart={onAddToCart}
+								onRemoveFavoriteItem={onRemoveFavoriteItem}
+								onRemoveCartItem={onRemoveCartItem}
+								cartItems={cartItems}
+								isLoading={isLoading}
+							/>
+						}
+					/>
+				</Routes>
+			</div>
+		</AppContext.Provider>
 	);
 }
 

@@ -7,7 +7,33 @@ export function Home({
 	onAddToFavorites,
 	onAddToCart,
 	onRemoveFavoriteItem,
+	onRemoveCartItem,
+	cartItems,
+	isLoading,
 }) {
+	const renderItems = () => {
+		const filteredItems = items.filter(item =>
+			item.title.toLowerCase().includes(searchValue.toLowerCase())
+		);
+
+		return (isLoading ? [...Array(12)] : filteredItems).map((item, i) => (
+			<Card
+				onRemoveFavoriteItem={() => onRemoveFavoriteItem(item.key)}
+				onAddToFavorites={() => onAddToFavorites(item)}
+				key={item ? item.key : i}
+				itemKey={item?.key}
+				title={item?.title}
+				price={item?.price}
+				imgUrl={item?.imgUrl}
+				onAddToCart={() => onAddToCart(item)}
+				onRemoveCartItem={() => onRemoveCartItem(item.key)}
+				clickPlus={cartItems.some(obj => obj.key === item.key)}
+				like={false}
+				isLoading={isLoading}
+			/>
+		));
+	};
+
 	return (
 		<div className='content p-40'>
 			<div className='d-flex align-center justify-between mb-40 '>
@@ -24,24 +50,7 @@ export function Home({
 				</div>
 			</div>
 
-			<div className='d-flex flex-wrap'>
-				{items
-					.filter(item =>
-						item.title.toLowerCase().includes(searchValue.toLowerCase())
-					)
-					.map(item => (
-						<Card
-							onRemoveFavoriteItem={()=>onRemoveFavoriteItem(item.key)}
-							onAddToFavorites={() => onAddToFavorites(item)}
-							key={item.key}
-							itemKey={item.key}
-							title={item.title}
-							price={item.price}
-							imgUrl={item.imgUrl}
-							onAddToCart={() => onAddToCart(item)}
-						/>
-					))}
-			</div>
+			<div className='d-flex flex-wrap'>{renderItems()}</div>
 		</div>
 	);
 }

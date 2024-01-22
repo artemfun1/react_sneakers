@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Link } from 'react-router-dom';
 
 export function Header({ onClickCart }) {
@@ -28,7 +29,11 @@ export function Header({ onClickCart }) {
 						<span>Закладки</span>
 					</Link>
 				</li>
-				<li>
+				<li onClick={()=>{
+					axios.patch(
+						'https://e52956ada346c69b.mokky.dev/orders',[])
+				}}>
+
 					<img width={18} height={18} src='img/User.svg' alt='user' />
 					<span>Профиль</span>
 				</li>

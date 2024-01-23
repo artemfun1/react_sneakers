@@ -4,7 +4,7 @@ import { AppContext } from '../context';
 import { Info } from './Info';
 
 export function Drawer({ onRemoveCartItem,setCartItems }) {
-	const { cartItems, setIsCartOpen } = useContext(AppContext);
+	const { cartItems, setIsCartOpen,allPrice } = useContext(AppContext);
 
 	const [order, setOrder] = useState(false);
 
@@ -55,12 +55,12 @@ export function Drawer({ onRemoveCartItem,setCartItems }) {
 								<li>
 									<span>Итого:</span>
 									<div></div>
-									<b> 21 498 руб.</b>
+									<b>{allPrice} руб.</b>
 								</li>
 								<li>
 									<span> Налог 5%:</span>
 									<div></div>
-									<b> 1074 руб.</b>
+									<b> {allPrice/100*5} руб.</b>
 								</li>
 							</ul>
 

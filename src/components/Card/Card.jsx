@@ -16,17 +16,21 @@ export function Card({
 	isLoading,
 	itemKey,
 }) {
-	const { cartItems } = useContext(AppContext);
+	const { cartItems} = useContext(AppContext);
 	const [isAdded, setIsAdded] = useState(clickPlus);
 	const [isFavorite, setIsFavorite] = useState(like);
 
 	const handleClickPlus = () => {
 		if (isAdded) {
 			setIsAdded(p => !p);
+			
+
 
 			for (let i of cartItems) {
 				if (i.key === itemKey) {
 					onRemoveCartItem();
+
+
 				}
 			}
 			return;
@@ -34,8 +38,9 @@ export function Card({
 
 		if (isAdded === false) {
 			setIsAdded(p => !p);
-
 			onAddToCart();
+			
+	
 		}
 	};
 

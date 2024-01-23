@@ -14,6 +14,7 @@ function App() {
 	const [searchValue, setSearchValue] = useState('');
 	const [favorites, setFavorites] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [allPrice, setAllPriceInCart] = useState(0);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -34,16 +35,30 @@ function App() {
 			setCartItems(cartRes.data);
 			setFavorites(favoritesRes.data);
 			setItems(itemsRes.data);
+
+			setAllPriceInCart(
+				cartRes.data.reduce((acc, item) => acc + Number(item.price), 0)
+			);
 		}
 
 		fetchData();
 	}, []);
 
-	const onAddToCart = obj => {
+	async function  onAddToCart (obj) {
 		let cur = true;
 		if (cartItems.length === 0) {
 			setCartItems(prev => [...prev, obj]);
-			axios.post('https://e52956ada346c69b.mokky.dev/cart', obj);
+			await axios.post('https://e52956ada346c69b.mokky.dev/cart', obj);
+
+			await axios
+				.get('https://e52956ada346c69b.mokky.dev/cart')
+				.then(res =>
+					setAllPriceInCart(res.data.reduce((acc, item) => acc + Number(item.price), 0))
+				)
+
+			
+
+
 		} else {
 			for (let i = 0; i < cartItems.length; i++) {
 				if (cartItems[i].key === obj.key) {
@@ -53,22 +68,32 @@ function App() {
 
 			if (cur === true) {
 				setCartItems(prev => [...prev, obj]);
-				axios.post('https://e52956ada346c69b.mokky.dev/cart', obj);
+				await axios.post('https://e52956ada346c69b.mokky.dev/cart', obj);
+
+				await axios
+				.get('https://e52956ada346c69b.mokky.dev/cart')
+				.then(res =>
+					setAllPriceInCart(res.data.reduce((acc, item) => acc + Number(item.price), 0))
+				)
+				
+
 			}
 		}
 	};
 
-	const onRemoveCartItem = key => {
-		axios.delete(`https://e52956ada346c69b.mokky.dev/cart/${key}`);
+	async function onRemoveCartItem (key) {
+		await axios.delete(`https://e52956ada346c69b.mokky.dev/cart/${key}`);
 
 		setCartItems(prev => prev.filter(item => item.key !== key));
 
-		// setItems(p=>[...p])
+		await axios
+		.get('https://e52956ada346c69b.mokky.dev/cart')
+		.then(res =>
+			setAllPriceInCart(res.data.reduce((acc, item) => acc + Number(item.price), 0))
+		)
 
 	
 	};
-
-
 
 	const onRemoveFavoriteItem = key => {
 		axios.delete(`https://e52956ada346c69b.mokky.dev/favorite/${key}`);
@@ -100,16 +125,18 @@ function App() {
 	};
 
 	return (
-		<AppContext.Provider value={{ cartItems, favorites,setIsCartOpen}}>
+		<AppContext.Provider
+			value={{ cartItems, favorites, setIsCartOpen, allPrice }}
+		>
 			<div className='wrapper clear'>
 				{Boolean(isCartOpen) && (
 					<Drawer
-					setCartItems={setCartItems}
+						setCartItems={setCartItems}
 						onRemoveCartItem={onRemoveCartItem}
 					/>
 				)}
 
-				<Header onClickCart={() => setIsCartOpen(true)} />
+				<Header allPrice={allPrice} onClickCart={() => setIsCartOpen(true)} />
 
 				<Routes>
 					<Route
